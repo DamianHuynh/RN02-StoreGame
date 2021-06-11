@@ -1,12 +1,17 @@
 import React, {Component} from 'react';
 import {Text, View, StyleSheet, Dimensions, Image} from 'react-native';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {navigationWithoutProps} from '../../navigation/rootNavigation';
 const {with: screenWith} = Dimensions.get('window');
 
 export default class GameItem extends Component {
   render() {
     const {gameItem} = this.props;
     return (
-      <View>
+      <TouchableWithoutFeedback
+        onPress={() =>
+          navigationWithoutProps('DetailScreen', {id: gameItem.id})
+        }>
         <Image source={{uri: gameItem.preview[0]}} style={styles.gameBanner} />
         <View
           style={[
@@ -23,14 +28,14 @@ export default class GameItem extends Component {
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
 
 const styles = StyleSheet.create({
   gameBanner: {
-    height: 200,
+    aspectRatio: 18 / 9,
     width: screenWith,
   },
   gameInfo: {
@@ -39,7 +44,7 @@ const styles = StyleSheet.create({
     left: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginHorizontal: 20,
+    marginHorizontal: '10%',
     paddingVertical: 15,
     paddingHorizontal: 10,
     borderRadius: 8,
