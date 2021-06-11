@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import {Dimensions, FlatList, Platform, StyleSheet, View} from 'react-native';
+import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import GameItem from './GameItem';
-
-const {width: screenWith} = Dimensions.get('window');
+import Header from './Header';
+import {BackgroundView} from '../../components';
 
 export default class HomeScreen extends Component {
   state = {
@@ -41,7 +41,8 @@ export default class HomeScreen extends Component {
     console.log(this.state.gameItem);
     const {games} = this.state;
     return (
-      <View style={styles.container}>
+      <BackgroundView>
+        <Header />
         {!!games.length && (
           <FlatList
             data={games}
@@ -50,46 +51,16 @@ export default class HomeScreen extends Component {
             ItemSeparatorComponent={() => <View style={styles.ItemSeparator} />}
           />
         )}
-      </View>
+      </BackgroundView>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#343434',
-  },
-  gameBanner: {
-    height: 200,
-    width: screenWith,
-  },
   ItemSeparator: {
     height: 100,
   },
   contentListGame: {
     paddingBottom: 100,
   },
-  gameInfo: {
-    position: 'absolute',
-    bottom: -40,
-    left: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginHorizontal: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-  },
-  gameInfoContent: {
-    width: '80%',
-  },
-  gameIcon: {
-    height: 50,
-    width: 50,
-    borderRadius: 8,
-  },
-  textColor: {color: '#fff'},
-  textTitle: {fontSize: 20, fontWeight: '700'},
-  textSub: {fontSize: 14, fontWeight: '300'},
 });
