@@ -7,6 +7,9 @@ const globalStyle = StyleSheet.create({
   h1: {
     fontSize: 30,
   },
+  h2: {
+    fontSize: 24,
+  },
   fontW300: {
     fontWeight: '300',
   },
