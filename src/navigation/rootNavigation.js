@@ -17,7 +17,7 @@ export const navigationWithoutProps = (name, params) => {
 const RootNavigation = () => {
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator headerMode="none" mode="modal">
         <Stack.Screen name="RootTab" component={RootTab} />
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
       </Stack.Navigator>

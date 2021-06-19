@@ -1,11 +1,16 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import {Platform, Image, StyleSheet, FlatList} from 'react-native';
+import {Image, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
+import {connect} from 'react-redux';
+import {getGameDetail} from '../../api/gameAPI';
 import {BackgroundView, Text, View} from '../../components';
-import {mapIP} from '../../utils/common';
+import {
+  fetchGameDetailAction,
+  setGameDetail,
+} from '../../redux/actions/gameAction';
 
-export default class DetailScreen extends Component {
+class DetailScreen extends Component {
   state = {
     game: {},
   };
@@ -25,29 +30,19 @@ export default class DetailScreen extends Component {
   };
 
   componentDidMount() {
-    axios({
-      method: 'GET',
-      url: `http://localhost:3000/games/${this.props.route.params.id}`,
-    })
-      .then(res => {
-        let game = {};
-        if (Platform.OS === 'android') {
-          game = mapIP(res.data);
-        } else {
-          game = res.data;
-        }
-        this.setState({game});
-      })
-      .catch(err => console.log(err));
+    this.props.fetchGameDetail(this.props.route.params.id);
   }
 
   render() {
-    const {game} = this.state;
+    const {gameDetail: game} = this.props;
     return (
       <BackgroundView>
         {!!game.title && (
           <>
             <Image source={{uri: game.preview[0]}} style={styles.gameBanner} />
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Text>Go back</Text>
+            </TouchableOpacity>
             <View style={styles.gameContainer}>
               <View style={styles.infoGame}>
                 <View style={styles.infoGameContainer} row>
@@ -142,3 +137,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+const mapDispatchToProps = dispatch => ({
+  fetchGameDetail: id => dispatch(fetchGameDetailAction(id)),
+});
+
+const mapStateToProps = state => ({
+  gameDetail: state.gameReducer.gameDetail,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(DetailScreen);
