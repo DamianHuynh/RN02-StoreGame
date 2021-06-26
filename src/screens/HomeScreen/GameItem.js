@@ -1,36 +1,32 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {Component} from 'react';
 import {Text, View, StyleSheet, Dimensions, Image} from 'react-native';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {navigationWithoutProps} from '../../navigation/rootNavigation';
 const {with: screenWith} = Dimensions.get('window');
 
-export default class GameItem extends Component {
-  render() {
-    const {gameItem} = this.props;
-    return (
-      <TouchableWithoutFeedback
-        onPress={() =>
-          navigationWithoutProps('DetailScreen', {id: gameItem.id})
-        }>
-        <Image source={{uri: gameItem.preview[0]}} style={styles.gameBanner} />
-        <View
-          style={[
-            styles.gameInfo,
-            {backgroundColor: gameItem.backgroundColor},
-          ]}>
-          <Image source={{uri: gameItem.icon}} style={styles.gameIcon} />
-          <View style={styles.gameInfoContent}>
-            <Text style={[styles.textColor, styles.textTitle]}>
-              {gameItem.title}
-            </Text>
-            <Text style={[styles.textColor, styles.textSub]}>
-              {gameItem.subTitle}
-            </Text>
-          </View>
+export default function GameItem(props) {
+  const {gameItem} = props;
+  const navigation = useNavigation();
+
+  return (
+    <TouchableWithoutFeedback
+      onPress={() => navigation.navigate('DetailScreen', {id: gameItem.id})}>
+      <Image source={{uri: gameItem.preview[0]}} style={styles.gameBanner} />
+      <View
+        style={[styles.gameInfo, {backgroundColor: gameItem.backgroundColor}]}>
+        <Image source={{uri: gameItem.icon}} style={styles.gameIcon} />
+        <View style={styles.gameInfoContent}>
+          <Text style={[styles.textColor, styles.textTitle]}>
+            {gameItem.title}
+          </Text>
+          <Text style={[styles.textColor, styles.textSub]}>
+            {gameItem.subTitle}
+          </Text>
         </View>
-      </TouchableWithoutFeedback>
-    );
-  }
+      </View>
+    </TouchableWithoutFeedback>
+  );
 }
 
 const styles = StyleSheet.create({

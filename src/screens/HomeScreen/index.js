@@ -1,35 +1,52 @@
-import React, {Component} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {FlatList, StyleSheet, View, Text} from 'react-native';
 import GameItem from './GameItem';
 import Header from './Header';
 import {BackgroundView} from '../../components';
-import {connect} from 'react-redux';
-import {fetchGameDataAction, setGameData} from '../../redux/actions/gameAction';
+import {useSelector, useDispatch, connect} from 'react-redux';
+import {fetchGameDataAction} from '../../redux/actions/gameAction';
+import {getGamesState} from '../../redux/selectors/gameSelector';
+import {changeLoading} from '../../redux/actions/loadingAction';
+import withLoading from '../../HOC/withLoading';
 
-class HomeScreen extends Component {
-  _renderItem = ({item}) => <GameItem gameItem={item} />;
+const HomeScreen = props => {
+  const games = useSelector(getGamesState);
+  const dispatch = useDispatch();
+  console.log(props);
 
-  componentDidMount() {
-    this.props.fetchGameData();
-  }
+  const _renderItem = ({item}) => <GameItem gameItem={item} />;
 
-  render() {
-    const {games} = this.props;
+  useEffect(() => {
+    dispatch(changeLoading(true));
+    dispatch(fetchGameDataAction());
+  }, []);
+
+  if (props.isLoading) {
     return (
-      <BackgroundView>
-        <Header />
-        {!!games.length && (
-          <FlatList
-            data={games}
-            renderItem={this._renderItem}
-            contentContainerStyle={styles.contentListGame}
-            ItemSeparatorComponent={() => <View style={styles.ItemSeparator} />}
-          />
-        )}
+      <BackgroundView
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Text style={{fontSize: 30, color: '#fff'}}>Loading ...</Text>
       </BackgroundView>
     );
   }
-}
+
+  return (
+    <BackgroundView>
+      <Header />
+      {!!games.length && (
+        <FlatList
+          data={games}
+          renderItem={_renderItem}
+          contentContainerStyle={styles.contentListGame}
+          ItemSeparatorComponent={() => <View style={styles.ItemSeparator} />}
+        />
+      )}
+    </BackgroundView>
+  );
+};
 
 const styles = StyleSheet.create({
   ItemSeparator: {
@@ -40,15 +57,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToProps = dispatch => ({
-  setGameData: data => dispatch(setGameData(data)),
-  fetchGameData: () => dispatch(fetchGameDataAction()),
-});
-
-const mapStateToProps = state => {
-  return {
-    games: state.gameReducer.games,
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+export default withLoading(HomeScreen);

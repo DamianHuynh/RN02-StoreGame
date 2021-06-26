@@ -1,92 +1,103 @@
 import axios from 'axios';
-import React, {Component} from 'react';
+import React, {Component, useEffect} from 'react';
 import {Image, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
-import {connect} from 'react-redux';
+import {connect, useSelector, useDispatch} from 'react-redux';
 import {getGameDetail} from '../../api/gameAPI';
 import {BackgroundView, Text, View} from '../../components';
+import withLoading from '../../HOC/withLoading';
 import {
   fetchGameDetailAction,
   setGameDetail,
 } from '../../redux/actions/gameAction';
+import {changeLoading} from '../../redux/actions/loadingAction';
+import {getGameDetailState} from '../../redux/selectors/gameSelector';
 
-class DetailScreen extends Component {
-  state = {
-    game: {},
-  };
+const DetailScreen = props => {
+  const game = useSelector(getGameDetailState);
+  const dispatch = useDispatch();
 
-  renderStar = () => {
+  const renderStar = () => {
     let star = [];
     for (let i = 1; i <= 5; i++) {
-      const color =
-        Math.floor(this.state.game.rating) >= i ? '#819ee5' : '#bbb';
+      const color = Math.floor(game.rating) >= i ? '#819ee5' : '#bbb';
       star.push(<IonicIcon key={i} name="ios-star" size={16} color={color} />);
     }
     return star;
   };
 
-  _renderItem = ({item}) => {
+  const _renderItem = ({item}) => {
     return <Image source={{uri: item}} style={styles.carouselItem} />;
   };
 
-  componentDidMount() {
-    this.props.fetchGameDetail(this.props.route.params.id);
-  }
+  useEffect(() => {
+    // dispatch(changeLoading(true));
+    dispatch(fetchGameDetailAction(props.route.params.id));
+  }, []);
 
-  render() {
-    const {gameDetail: game} = this.props;
+  if (props.isLoading) {
     return (
-      <BackgroundView>
-        {!!game.title && (
-          <>
-            <Image source={{uri: game.preview[0]}} style={styles.gameBanner} />
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Text>Go back</Text>
-            </TouchableOpacity>
-            <View style={styles.gameContainer}>
-              <View style={styles.infoGame}>
-                <View style={styles.infoGameContainer} row>
-                  <Image source={{uri: game.icon}} style={styles.iconGame} />
-                  <View style={styles.infoGameText}>
-                    <Text h2 light>
-                      {game.title}
-                    </Text>
-                    <Text style={styles.infoSubTitleText}>{game.subTitle}</Text>
-                  </View>
-                  <View style={styles.iconContainer}>
-                    <IonicIcon name="cloud-download" color="#fff" size={30} />
-                  </View>
-                </View>
-                <View row>
-                  <View row style={styles.infoGameContainer}>
-                    {this.renderStar()}
-                    <Text>{game.rating}</Text>
-                  </View>
-                  <Text>{game.age}</Text>
-                  <Text>Game of the days</Text>
-                </View>
-              </View>
-              <View style={styles.carouselGame}>
-                <FlatList
-                  showsHorizontalScrollIndicator={false}
-                  horizontal
-                  data={game.preview}
-                  keyExtractor={(_, index) => index.toString()}
-                  renderItem={this._renderItem}
-                  ItemSeparatorComponent={() => (
-                    <View style={styles.itemSeparatorComponent} />
-                  )}
-                  snapToInterval={370}
-                  decelerationRate="fast"
-                />
-              </View>
-            </View>
-          </>
-        )}
+      <BackgroundView
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Text style={{fontSize: 30, color: '#fff'}}>Loading ...</Text>
       </BackgroundView>
     );
   }
-}
+
+  return (
+    <BackgroundView>
+      {!!game.title && (
+        <>
+          <Image source={{uri: game.preview[0]}} style={styles.gameBanner} />
+          <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <Text>Go back</Text>
+          </TouchableOpacity>
+          <View style={styles.gameContainer}>
+            <View style={styles.infoGame}>
+              <View style={styles.infoGameContainer} row>
+                <Image source={{uri: game.icon}} style={styles.iconGame} />
+                <View style={styles.infoGameText}>
+                  <Text h2 light>
+                    {game.title}
+                  </Text>
+                  <Text style={styles.infoSubTitleText}>{game.subTitle}</Text>
+                </View>
+                <View style={styles.iconContainer}>
+                  <IonicIcon name="cloud-download" color="#fff" size={30} />
+                </View>
+              </View>
+              <View row>
+                <View row style={styles.infoGameContainer}>
+                  {renderStar()}
+                  <Text>{game.rating}</Text>
+                </View>
+                <Text>{game.age}</Text>
+                <Text>Game of the days</Text>
+              </View>
+            </View>
+            <View style={styles.carouselGame}>
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                horizontal
+                data={game.preview}
+                keyExtractor={(_, index) => index.toString()}
+                renderItem={_renderItem}
+                ItemSeparatorComponent={() => (
+                  <View style={styles.itemSeparatorComponent} />
+                )}
+                snapToInterval={370}
+                decelerationRate="fast"
+              />
+            </View>
+          </View>
+        </>
+      )}
+    </BackgroundView>
+  );
+};
 
 const styles = StyleSheet.create({
   gameBanner: {
@@ -138,12 +149,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapDispatchToProps = dispatch => ({
-  fetchGameDetail: id => dispatch(fetchGameDetailAction(id)),
-});
-
-const mapStateToProps = state => ({
-  gameDetail: state.gameReducer.gameDetail,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DetailScreen);
+export default withLoading(DetailScreen);
